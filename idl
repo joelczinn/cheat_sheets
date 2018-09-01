@@ -1,0 +1,43 @@
+################################################################
+# find location of file
+################################################################
+print, ROUTINE_FILEPATH("DIST", /EITHER)
+
+################################################################
+# plotting
+################################################################
+Set_Plot, 'Z'; don't make a graphics window.
+Erase
+Device, Set_Resolution=[500,350],Set_Pixel_Depth=24, Decomposed=1
+cgdisplay,0,xsize=1200,ysize=900,xpos=0,ypos=200,retain=2,tit='TITLE_1'
+cgdisplay,1,xsize=1200,ysize=500,xpos=1200,ypos=600,retain=2,tit='TITLE_2'
+
+charsize1 = 1.0
+charsize2 = 2.0
+!EXCEPT = 0
+tvlct,255,0,0,1
+tvlct,0,255,0,2
+tvlct,0,0,255,3
+cgset,0
+
+plot,x,y,/xlog,/ylog,title='Initial guesses',xtitle='Frequency [muHz]',$
+     ytitle='Power density [ppm^2 muHz^-1]',/xs,/ys
+oplot,x,s,color=1
+oplot,xo,harvey(xo,[pars[0],pars[2]]),color=5,linestyle=2
+oplot,x,harvey_mult(x,pars),color=3,thick=3
+oplot,[mnu[0]],[ma[0]],psym=6,color=3,thick=3
+; save plot
+saveimage,scs_dir+names[v]+'.sp.gif'
+
+################################################################
+# writing to file
+################################################################
+openw,9,path+list+'.ranges',/append
+printf,9,names[v],center-limfac,center+limfac,maxpower[0],maxpower[1],format='(A,d12.5,d12.5,d12.5,d12.5)'
+close,9
+
+################################################################
+# reading from file
+################################################################
+readcol,paramfile,exclfile,format='A',skipline=4,numline=1
+readcol,paramfile,scs_dir,format='A',skipline=25,numline=1

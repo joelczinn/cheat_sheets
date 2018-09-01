@@ -1,0 +1,6 @@
+################################################################
+# set up automatic authentication with key pairs
+################################################################
+# see https://www.digitalocean.com/community/tutorials/how-to-set-up-ssh-keys--2
+# if you have a public key stored on your local machine at ~/.ssh/id_rsa.pub, and your remote machine is @123.45.56.78, then the following will allow you to log in without a password from now on:
+cat ~/.ssh/id_rsa.pub | ssh user@123.45.56.78 "mkdir -p ~/.ssh && cat >>  ~/.ssh/authorized_keys"

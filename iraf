@@ -1,0 +1,10 @@
+################################################################
+# how to open a session
+################################################################
+# open ximtool in a terminal
+# start iraf with
+cl
+# in another terminal
+# then do
+display IMAGE
+# in that IRAF terminal.

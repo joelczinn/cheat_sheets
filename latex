@@ -1,0 +1,81 @@
+################################################################
+# figure spacing
+################################################################
+# try putting \fbox around float to see what the bounding box is, to see whether it is the figure and not the placementi in latex casuing the issues. this might fix problems with .eps files:
+\fbox{\includegraphics[width=0.8\textwidth]{FILE.eps}}
+
+################################################################
+# tables 
+################################################################
+# l means left-justified c means centered and r means right-justified
+\begin{center}
+  \begin{tabular}{ l | c || r }
+    \hline
+    1 & 2 & 3 \\ \hline
+    4 & 5 & 6 \\ \hline
+    7 & 8 & 9 \\
+    \hline
+  \end{tabular}
+\end{center}
+
+################################################################
+# words in between citations in parentheses
+################################################################
+\parencites[species A:][]{ref1}[species B:][]{ref2}
+
+################################################################
+side-by-side figures
+################################################################
+# see http://tex.stackexchange.com/questions/119984/subfigures-side-by-side-with-captions
+
+\begin{figure*}[t!]
+    \centering
+    \begin{subfigure}[t]{0.5\textwidth}
+        \centering
+        \includegraphics[height=1.2in]{a}
+        \caption{Lorem ipsum}
+    \end{subfigure}%
+    ~ 
+    \begin{subfigure}[t]{0.5\textwidth}
+        \centering
+        \includegraphics[height=1.2in]{b}
+        \caption{Lorem ipsum, lorem ipsum,Lorem ipsum, lorem ipsum,Lorem ipsum}
+    \end{subfigure}
+    \caption{Caption place holder}
+\end{figure*}
+
+################################################################
+# SI package
+################################################################
+\si{\kilo\gram\metre\per\square\second}
+kgms^{-2}
+
+################################################################
+# latex distributions
+################################################################
+in CTAN, can see what distribution a package is maintained under. I think for it to work on Linux, needs to be Tex Live.
+TeX Live is a major TeX distribution for *BSD, GNU/Linux, Mac OS X and Windows.
+MiKTeX is a Windows-specific distribution.
+MacTeX is a Mac OS-specific distribution based on TeX Live.
+
+################################################################
+# install .cls and .sty files
+################################################################
+# put style files in their own directory under:
+# /opt/local/share/texmf-texlive/doc/latex/
+# custom files need to be installed in a subdirectory of:
+# /opt/local/share/texmf-local/
+# found by looking at what directory is searched for a given extension. for instance, if you do the following:
+# kpsewhich -help-format | grep cls -C 20
+# you will see that .cls files are searched for in tex/ so they need to be found in some sub-directory of:
+# /opt/local/share/texmf-local/tex
+# you can make sure it is installed by doing
+kpsewhich revtex4-1.cls
+# which should return the path of the .cls file
+# once you put the files there, essentially you have to 'source' it:
+sudo mktexlsr /usr/local/texlive/texmf-local
+# and then do
+
+texhash
+
+

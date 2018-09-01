@@ -1,0 +1,370 @@
+################################################################
+# dotfile repo tutorial
+################################################################
+https://developer.atlassian.com/blog/2016/02/best-way-to-store-dotfiles-git-bare-repo/
+how to install:
+echo ".cfg" >> .gitignore
+alias config='/usr/bin/git --git-dir=$HOME/.cfg/ --work-tree=$HOME'
+and then 
+git clone --bare https://github.com/joelczinn/.cfg $HOME/.cfg
+config checkout
+if there are issues with checking out:
+mkdir -p .config-backup 
+config checkout 2>&1 | egrep "\s+\." | awk {'print $1'} | xargs -I{} mv {} .config-backup/{}
+replace the .cfg default dotfiles with the ones you originally had (now in .config-backup) as you like...
+
+Set the flag showUntrackedFiles to no on this specific (local) repository:
+config config --local status.showUntrackedFiles no
+
+and put the alias in your ~/.bashrc:
+echo alias config="'"'/usr/bin/git --git-dir=$HOME/.cfg/ --work-tree=$HOME'"'" >> ~/.bashrc
+
+
+################################################################
+# git LFS
+################################################################
+for adding LFS files to existing repo:
+_________
+
+the following is useful when you have files (in the below case, files that end in .gif) already in the commit structure, and you want to remove them from the normal git repo and manage them with git LFS:
+on mac, i downloaded the bfg package and can run it to convert 
+java -jar ~/bfg-1.13.0.jar --convert-to-git-lfs '*.gif' --no-blob-protection
+then follow the instructions, which will involve something like:
+git reflog expire --expire=now --all && git gc --prune=now --aggressive
+and then push it:
+git push origin master
+you should see something like:
+Git LFS: (3013 of 7340 files) 205.74 MB / 476.07 MB 
+as it uploads
+if it fails with an error, you can make a new repo on github and change the remote to that:
+git remote remove origin
+git remote add origin git@github.com:joelczinn/NEWREPO.git
+and then do push again:
+git push origin master
+
+################
+# ours merging
+# this will apply your local changes to the merge of remote version
+################################################################
+git pull -s recursive -X ours
+
+################################################################
+# add changes from one branch to another 
+################################################################
+let's say you have made changes to files but you don't wantt them added on the current branch, but rather a diff one called other-branch
+git stash
+git checkout other-branch
+git stash pop
+
+################################################################
+# search for filename / text in a stash:
+################################################################
+git stash show -p stash@{1} | grep TEXT -C 20
+# the -C 20 is to show 20 lines of context after. use -B 20 to show 20 lines of context before match
+
+################################################################
+# merge stash with current changes
+################################################################
+stage the files that you have changed and that are changed in the stash
+git add FILE
+# then just git stash apply
+git stash apply
+
+################################################################
+# search for string across all branches -- remote and local
+################################################################
+git branch -a | cut -c3- | xargs git grep -e 'np\.e.*\*\*2.*).*\*L' >> tmp.grep
+
+################################################################
+# stash untracked files, too
+################################################################
+git stash save -u
+
+
+################################################################
+# checking out a new branch from remote repo
+################################################################
+need to update what local knows about remote:
+git fetch origin
+and then create a new branch based on the remote one:
+git checkout -b REMOTE_REPO origin/REMOTE_REPO
+
+################################################################
+# removing big files
+################################################################
+big files can be a problem if you are trying to push a repo that already has big files in multiple commits and this is your first time pushing to origin.
+
+to identify those big files:
+git rev-list --objects --all | grep "$(git verify-pack -v .git/objects/pack/*.idx | sort -k 3 -n | tail -10 | awk '{print$1}')"
+
+
+to remove them:
+git filter-branch -f --index-filter 'git rm -r --cached --ignore-unmatch BIG_FILE_FOLDER/BIG_FILE' HEAD
+
+
+################################################################
+# stage deleted files
+################################################################
+Use git rm foo to stage the file for deletion. 
+see http://stackoverflow.com/questions/12373733/staging-deleted-files
+
+################################################################
+# selectively edit the current version of the file based on an interactive diff fromt hat path in a previous commit
+################################################################
+git checkout -p 20d021e -- postprocessing_pypar.py
+
+see http://stackoverflow.com/questions/449541/how-do-you-merge-selective-files-with-git-merge
+
+if you want to edit lines that are being added (i.e., you are picking and choosing what parts of the diffs to apply), you will want to replace the + at the beginning of the line with + with # and then add a new line that starts with +:
+so if initially the diff looks like:
+-def plot_compare_two_things(_x, _y, _xerr, _yerr, xlims=(None, None), ylims=(None, None), nbins = 8, ext='eps', filename='tmp', c=None, xlabel='', ylabel='', frac=True, clabel='', err_loc=None, label_size=20., subsample=None, plot_outliers=True, onescale='linear', twoscale='linear', twoxlabel=None, twoylabel=None, plot_err_med=True, reduce_height = 0.15, errorbar_linewidth=None, unit=None):                                                                                                                  
++def plot_compare_two_things(_x, _y, _xerr, _yerr, xlims=(None, None), ylims=(None, None), nbins = 8, ext='eps', filename='tmp', c=None, xlabel='', ylabel='', frac=True, clabel='', err_loc=None, label_size=20., subsample=None, plot_outliers=True, onescale='linear', twoscale='linear', ax1=None, ax2=None): 
+
+then the final edit would look like:
+-def plot_compare_two_things(_x, _y, _xerr, _yerr, xlims=(None, None), ylims=(None, None), nbins = 8, ext='eps', filename='tmp', c=None, xlabel='', ylabel='', frac=True, clabel='', err_loc=None, label_size=20., subsample=None, plot_outliers=True, onescale='linear', twoscale='linear', twoxlabel=None, twoylabel=None, plot_err_med=True, reduce_height = 0.15, errorbar_linewidth=None, unit=None):                                                                                                                  
+#def plot_compare_two_things(_x, _y, _xerr, _yerr, xlims=(None, None), ylims=(None, None), nbins = 8, ext='eps', filename='tmp', c=None, xlabel='', ylabel='', frac=True, clabel='', err_loc=None, label_size=20., subsample=None, plot_outliers=True, onescale='linear', twoscale='linear', ax1=None, ax2=None): 
++LINE YOU ADD
+
+################################################################
+# 'theirs' strategy to merge branch B to branchA
+################################################################
+git checkout branchA
+
+# Do a merge commit. The content of this commit does not matter,
+# so use a strategy that never fails.
+# Note: This advances branchA.
+git merge -s ours branchB
+
+# Change working tree and index to desired content.
+# --detach ensures branchB will not move when doing the reset in the next step.
+git checkout --detach branchB
+
+# Move HEAD to branchA without changing contents of working tree and index.
+git reset --soft branchA
+
+# 'attach' HEAD to branchA.
+# This ensures branchA will move when doing 'commit --amend'.
+git checkout branchA
+
+# Change content of merge commit to current index (i.e. content of branchB).
+git commit --amend -C HEAD
+
+see http://stackoverflow.com/questions/173919/is-there-a-theirs-version-of-git-merge-s-ours
+
+################################################################
+# rebasing workflow
+################################################################
+git checkout master  # Check out the "public" branch
+git pull              # Get the latest version from remote
+git checkout -b comment_broken_links_101026  # topical branch
+... # do stuff here.. Make commits.. test...
+git fetch origin      # Update your repository's origin/ branches from remote repo
+git rebase origin/master  # Plop our commits on top of everybody else's
+git checkout master  # Switch to the local tracking branch
+git pull              # This won't result in a merge commit
+git rebase comment_broken_links_101026  # Pull those commits over to the "public" branch
+git push               # Push the public branch back up, with my stuff on the top
+
+see https://randyfay.com/node/91
+
+################################################################
+# if you already remove a file using git rm --cached but then realize you have many more files that match a regexp that 
+# the file you already removed from the cached repo you will get an error like 
+# fatal: pathspec 'k2_ex_excess.png' did not match any files
+# to get around this, do the following:
+# (it will ignore the error and continue to the other matches)
+find ./ -maxdepth 5 -type f -name "*eps" | xargs -0 git rm --cached
+
+################################################################
+# undo git add .
+################################################################
+git reset HEAD .
+
+################################################################
+# search through revisions using grep
+################################################################
+git grep <regexp> $(git rev-list --all)
+
+################################################################
+# retrospectively removing ignored files 
+################################################################
+git ls-files -ci --exclude-standard -z | xargs -0r git rm --cached
+
+################################################################
+# checkout single file from the last stash on the current branch
+################################################################
+git checkout 'stash@{0}' -- FILE
+
+################################################################
+# undoing things
+################################################################
+# see https://github.com/blog/2019-how-to-undo-almost-anything-with-git
+
+################################################################
+# global .gitignore files
+################################################################
+if you want to apply gitignore rules in ~/.gitignore, do :
+
+git config --global core.excludesfile ~/.gitignore
+
+you can opt for only local gitignore file by making one in your repo:
+repo>>>touch .gitignore
+
+and then making a line
+excludesfile = ../.gitignore
+
+under the [core] heading of
+repo>>>.git/config
+
+and to list the ignored files of the repo do
+git ls-files -ci --exclude-standard
+
+
+################
+# find git config file
+################################################################
+git config --global --edit
+from http://stackoverflow.com/questions/2114111/where-does-git-config-global-get-written-to
+
+################################################################
+# list branches and check one out
+################################################################
+can use either long or short form of hash to checkout
+git log
+will list commits and their long hashes
+can then list the short version of a long hash with
+git rev-parse --short 1dc76df1a4dd32843ae4358af13afb9bcaf87398
+(short version is just so many of the first characters of the long hash, but it's convenient if you don't remember how many of the first characters of the long make up the short! [like me right now... i think six? idk])
+and then check it out using EITHER long OR short hash with:
+git checkout 1dc76df1a4dd32843ae4358af13afb9bcaf87398
+################################################################
+# delete file from commit
+################################################################
+checkout the commit you wish to delete the file from (see "list branches and check one out".
+then remove the file with
+rm FILE
+then commit that change using :
+git commit --amend --no-edit
+
+################################################################
+# add file to existing commit
+################################################################
+say you forgot to add file FILE to the commit you just made:
+git add FILE
+git commit --amend
+
+################################################################
+# return current branch hash (long version)
+################################################################
+git rev-parse HEAD
+
+return current branch hash (short version)
+git rev-parse --short HEAD
+
+################################################################ 
+# new repo from currently existing directory
+################################################################
+make a new repo on github.com
+then
+git init
+in the directory you want to make the new repo
+and then do, from directory
+git remote add origin git@github.com:joelczinn/REPO.git
+git push -u origin master
+################################################################
+# downloading something from github:
+################################################################
+clone it by clicking clipboard next to the HTTPS clone URL to the right of the screen
+then run in git directory:
+git clone https://github.com/zzelda3/triangle.py.git
+
+install using pip:
+apparently this is fastest method, according to Steve K on stackex, for, .e.g., installing django:
+pip install https://github.com/django/django/archive/master.zip
+
+################################################################
+# connect two computers with git
+################################################################
+# see http://stackoverflow.com/questions/4948190/git-repository-sync-between-computers-when-moving-around
+ think, there are multiple approaches. I will just describe, how I handle this
+
+I have one netbook as a 24/7 server, that holds multiple git-repositories. From/To there I push and pull changes via SSH. For access from outside I use dyndns.org. It works fine, especially because I have more than two systems, that needs access to some of the repositories.
+
+Update: A little example. Lets say my netbook is called "netbook". I create a repository there
+
+$ ssh username@netbook.local
+$ cd ~/git
+$ mkdir newThing
+$ cd newThing
+$ git init --bare
+
+On my desktop I will than create a clone of it. Maybe I will add some files also
+
+$ git clone username@netbook.local:/home/username/git/newThing
+$ git add .
+$ git commit -m "Initial"
+$ git push origin master
+
+On my portables I will (first) do the same, but for remote access (from outside my LAN), I will also add the external address.
+
+$ git clone username@netbook.local:/home/username/git/newThing
+$ git remote add externalName username@mydyndns.home-ip.org:/home/username/git/newThing
+$ git pull externalName master
+
+Its just the way git (/git workflows) works. You can add as many remote repositories as you like. It doesnt matters, if two or more refers to the same "physical" repositories. You dont need an own local "server", you can use any public server, to which you have ssh access. And of course you dont need a public server at all, if you dont need access from outside. The bare repository can also be on the desktop system and you can then create a working-copy-repository within the local filesystem.
+
+$ mkdir myRepo; cd myRepo
+$ git init --bare
+$ cd /path/to/myProject
+$ git remote add origin /path/to/myRepo
+$ git add .; git commit -m "Initial"; git push origin master
+
+This is the way, how I handle this, and I for me it works quite fine (if not perfect ;))
+
+Something to read: http://progit.org/ Really good book.-
+
+################################################################
+# reconciling two different branches and a remote repository
+################################################################
+let's say branch_A is maintained on machine A
+and branch_B is maintained on machine B
+they are both branches on a remote repository known as origin 
+you should be on the master branch (e.g., :
+A>>>git branch
+branch_A
+branch_B
+* master
+)
+now overwrite both branches on the respective machines and push them to the remote repository
+A>>>git branch branch_A -M
+A>>>git push origin branch_A
+(-M option forces to transfer current files to branch_A)
+B>>>git branch branch_B -M
+B>>> git push origin branch_B
+
+now reconcile the branch using one of the machines.
+first pull the other branch over. we will assume this is all
+done on machine A
+A>>>git pull origin branch_B
+you will probably 
+A>>>git mergetool --tool=emerge
+
+then push the updated branch back
+A>>>git push origin branch_A
+
+OR combine the branch with master by rewriting the local master branch
+A>>>git branch master -M
+A>>>git add .
+A>>>git commit
+A>>>git push origin master
+
+the last line might not work... maybe it should be
+A>>>git push origin 
+
+
+
+
+################################################################
+# merging
+################################################################
+git mergetool --tool=emerge

@@ -1,0 +1,21 @@
+################################################################
+# take specific packages from another env
+################################################################
+# say i wanted package pack from env other in my env mine
+bash
+source activate other
+conda list -e > packages.txt
+# (edit packages.txt to include the packages you want -- in this case, just the line with pack info on it)
+conda install --name mine --file packages.txt
+
+################################################################
+# create new env
+################################################################
+conda create -n ENV
+
+################################################################
+# get info on current envs (i think current one is listed first)
+################################################################
+conda info -e
+
+# conda won't automatically `activate' the env in tcsh env. must prepend ENVPATH/bin to the beginning of PATH. i guess the reverse goes to uninstall it...

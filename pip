@@ -1,0 +1,14 @@
+################################################################
+# install code that has a setup.py and the code to be instlaled in directory DIRECT:
+################################################################
+pip install ~/DIRECT
+
+# to upgrade it
+pip install --upgrade ~/DIRECT
+
+# can't get pip show to work on custom codes...
+
+################################################################
+# install specific verson
+################################################################
+pip install 'xkcdpass==1.2.5' --force-reinstall

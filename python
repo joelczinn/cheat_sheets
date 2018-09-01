@@ -1,0 +1,585 @@
+################################################################
+# colorblind safe colors
+################################################################
+# from @ted_mackereth:
+
+safe_colours = safe_colours.initialise()
+
+# then you can load a dictionary which gives the individual distinct colormap (examples are col_dict[‘blue’], col_dict[‘coral’] etc):
+
+col_dict = safe_colours.distinct_named()
+
+# You can also load a set of N colours which are distinct from one another using:
+
+cols = safe_colours.distinct_list(3)
+
+# which gives 3 distinct colours when called like cols[0] etc etc.
+
+# the actual colormaps that can be passed to matplotlib functions are loaded like this:
+
+cm_rainbow = safe_colours.colourmap('rainbow')
+cm_heat = safe_colours.colourmap('heat')
+cm_diverging = safe_colours.colourmap('diverging’)
+
+################################################################
+# making an inset
+################################################################
+from mpl_toolkits.axes_grid.inset_locator import inset_axes
+inset_axes = inset_axes(parent_axes,
+                    width="30%", # width = 30% of parent_bbox	
+		                        height=1., # height : 1 inch
+					                    loc=3)
+
+################################################################
+# jupyter notebook on local machine, but run from remote machine
+################################################################
+# on remote machine:
+jupyter notebook --no-browser --port=8889
+
+# on local machine:
+ssh -N -f -L localhost:9000:localhost:8889 extend
+# then open localhost:9000 in browser
+
+################################################################
+# choose a symmetric selection of a matrix
+# sub-matrix  compress cut slice
+################################################################
+# see https://stackoverflow.com/questions/19161512/numpy-extract-submatrix
+In [2]: import numpy as np
+
+In [3]: a = np.arange(16).reshape(4,4)
+Out[3]: 
+array([[ 0,  1,  2,  3],
+       [ 4,  5,  6,  7],
+       [ 8,  9, 10, 11],
+       [12, 13, 14, 15]])
+
+In [8]: a[np.ix_(np.array([0,2,3]),[0,2,3])]
+Out[8]: 
+array([[ 0,  2,  3],
+       [ 8, 10, 11],
+       [12, 14, 15]])
+
+
+################################################################
+# don't turn on a legend for this item
+################################################################
+# see https://stackoverflow.com/questions/24680981/show-only-certain-items-in-legend-python-matplotlib
+plt.plot(x, y,label='_nolegend_')
+
+################################################################
+# plotting order
+################################################################
+zorder = BIG NUMBER
+# to be plotted on top
+
+################################################################
+# colorbar stuff
+################################################################
+heatmap = ax.imshow(output_map, extent=extent, cmap=plt.cm.Greys)
+ax.set_xlabel(r'$\ell$, [degree]'); ax.set_ylabel(r'$b$, [degree]')
+
+# add colorbar
+
+cbar = plt.colorbar(heatmap)
+cbar.set_label(r'A_{{\mathrm{}}}'.format(band), rotation=270, labelpad=10)
+# negative (positive) numbers for labelpad will bring the label closer to (away from) the bar
+
+################################################################
+# zero pad integers
+################################################################
+'{:05d}'.format(1)
+0001
+
+################################################################
+# room for text margin enlarge
+################################################################
+plt.subplots_adjust(right=.8 [, bottom=0.2])
+
+################################################################
+# Tkinter
+################################################################
+# only showing a certain part of the image in the widget
+
+first make a canvas
+    root.geometry('%dx%d' % (width, height))                                                                                                                                                                       
+    tkpi = ImageTk.PhotoImage(image1)                                                                                                                                                                              
+    # label_image = Tkinter.Label(root, image=tkpi, text=glb.tiles[glb.i].upper(), compound=Tkinter.BOTTOM, font=tkFont.Font(family='Helvetica', size=500, weight='bold'))                                         
+    label_image = Tkinter.Canvas(root)                                                                                                                                                                             
+    label_image.create_image(posx, posy, image=tkpi)                                                                                                                                                               
+    # label_image.place(x=900,y=300,width=image1.size[0],height=image1.size[1])                                                                                                                                    
+    # label_image.pack(fill='both', expand=True, padx=posx, pady=posy)                                                                                                                                             
+    label_image.pack(pady=0)  
+
+
+# add figure to widget
+    ax = fig.add_subplot(111)                                                                                                                                                                                      
+    ax.plot([0,1], [0, 1])                                                                                                                                                                                         
+                                                                                                                                                                                                                   
+    plot = FigureCanvasTkAgg(fig, master=root)                                                                                                                                                                     
+    posx_ = 180                                                                                                                                                                                                    
+    posy_ = -170                                                                                                                                                                                                   
+                                                                                                                                                                                                                   
+    plot.show()                                                                                                                                                                                                    
+    plot.get_tk_widget().pack()   
+
+# and actually tkinter is smart enough that if you have two objects in root, when you subsequently pack them, it will pack the second 
+# one in the free space available after having packed the first one.
+
+################################################################
+# ipython from within routine
+################################################################
+from IPython import embed
+embed()
+
+################################################################
+# troubleshooting ipython
+################################################################
+# if ipython fails because of an sqlite database being locked, remove all the *sqlite* files from:
+# ~/.ipython/profile_default/
+
+
+################################################################
+# default backend for my rcParams file for matplotlib
+################################################################
+Qt4Agg
+
+################################################################
+# changing geometry of an axis
+################################################################
+pl.ax.change_geometry(*(2,1,1))
+
+################################################################
+# lock in arguments to a function
+################################################################
+import functools
+f = functools.partial(np.percentile, q=95)
+# can use kwargs in partial() to specify argument names in the function you want to reduce (here, np.percentile)
+
+################################################################
+# unknown arguments in argparse
+################################################################
+# see http://stackoverflow.com/questions/12818146/python-argparse-ignore-unrecognised-arguments
+
+# allow for unknown arguments :
+# replace
+args = parser.parse_args()
+# with
+args, unknown = parser.parse_known_args()
+
+################################################################
+# spline
+################################################################
+spline = scipy.interpolate.UnivariateSpline(x, y, k=3)
+y_inbetween = spline(other_x)
+
+################################################################
+# labels are being cut off in final image
+################################################################
+plt.tight_layout(fig)
+
+################################################################
+# delete element from array
+################################################################
+# delete zeroth element from array x :
+new = np.delete(x, 0)
+# note you have to assign it it is not done in place
+
+################################################################
+# minor ticks in log scale formatter nullformatter
+################################################################
+# if you span few decades, you probably want labels on the minor ticks
+
+from matplotlib.ticker import FormatStrFormatter
+x = np.linspace(0,4,1000)
+y = np.exp(x)
+plt.plot(x, y)
+ax = plt.gca()
+ax.set_yscale('log')
+plt.tick_params(axis='y', which='minor')
+ax.yaxis.set_minor_formatter(FormatStrFormatter("%.1f"))
+
+# if you span several decades, best not to label them, but can still make the tick marks appear:
+import matplotlib.pyplot as plt
+import matplotlib.ticker
+import numpy as np
+
+# for all the minor ticks:
+locmin = matplotlib.ticker.LogLocator(base=10.0, subs=(0.1,0.2,0.3,0.4,0.5,0.6,0.7,0.8,0.9))
+
+# for only even ones:
+locmin = matplotlib.ticker.LogLocator(base=10.0, subs=(0.2,0.4,0.6,0.8))
+ax.xaxis.set_minor_locator(locmin)
+ax.xaxis.set_minor_formatter(matplotlib.ticker.NullFormatter())
+
+################################################################
+# print out the full array in ipython
+################################################################
+# see http://stackoverflow.com/questions/1987694/print-the-full-numpy-array
+def fullprint(*args, **kwargs):
+  from pprint import pprint
+  import numpy
+  opt = numpy.get_printoptions()
+  numpy.set_printoptions(threshold='nan')
+  pprint(*args, **kwargs)
+  numpy.set_printoptions(**opt)
+
+################################################################
+# convert a python nb to and from python
+################################################################
+python -m py2nb input.py output.ipynb
+# and then
+ipython nbconvert --to=python *.ipynb
+
+################################################################
+# endian ness
+################################################################
+# see https://github.com/astropy/astropy/issues/1156
+
+# FITS is in a different endian ness than is pandas so this can cause problems. if you have an array like
+array = pyfits.getdata(file)['field']
+then convert the endianness:
+array = array.byteswap().newbyteorder()
+
+################################################################
+# regex in python
+################################################################
+import re
+m =re.match('\D*([0-9]{9})\D*', string)
+
+# here, \D is any non-digit character, equivalent to [^0-9]
+to return the entire match do
+m.group(0)
+to return the first parenthetical grab do
+m.group(1)
+
+################################################################
+# mpi processes
+################################################################
+try:
+    pool = MPIPool(comm=kwargs["comm"], debug=False)
+    if not pool.is_master():
+	# Wait for instructions from the master process.
+	pool.wait()
+	sys.exit(0)
+    keywordargs['pool'] = pool
+except:
+    pool = MPIPool(debug=True)
+    if not pool.is_master():
+	# Wait for instructions from the master process.
+	pool.wait()
+	sys.exit(0)
+    keywordargs['pool'] = pool
+
+################################################################
+# reading in complex numbers with loadtxt
+################################################################
+# see http://stackoverflow.com/questions/21012484/how-to-save-a-complex-matrix-in-a-file/
+In [33]: !cat z.txt
+1.0000e+00+2.0000e+00j -3.0000e+00+4.0000e+00j 5.0000e+00-6.0000e+00j
+-1.0000e+00+0.0000e+00j 0.0000e+00+2.0000e+00j 3.0000e+00+0.0000e+00j
+
+# This file can be read back into a numpy array with np.loadtxt or np.genfromtxt. To use loadtxt, it must be told that the data type is complex:
+
+In [8]: loadtxt('z.txt', dtype=np.complex128)
+Out[8]: 
+array([[ 1.+2.j, -3.+4.j,  5.-6.j],
+       [-1.+0.j,  0.+2.j,  3.+0.j]])
+
+################################################################
+# saving with columns with savetxt
+################################################################
+np.savetxt(f, np.c_[output['best']].T)
+
+################################################################
+# append with np.savetxt
+################################################################
+# see http://stackoverflow.com/questions/27786868/python3-numpy-appending-to-a-file-using-numpy-savetxt
+# opening in binary mode allows one to append with savetxt...
+
+f = open('OUT.dat', 'ab')
+np.savetxt(f, output['best'])
+f.close()
+
+################################################################
+# custom tick labels
+################################################################
+ax.set_xticklabels(["{:4.0f}".format(t) for t in (ax.get_xticks())])		
+
+################################################################
+# making legend entry with empty handle
+################################################################
+# see http://stackoverflow.com/questions/16826711/is-it-possible-to-add-a-string-as-a-legend-item-in-matplotlib
+# useful for adding text when you don't really want to use ax.text (e.g., you don't know where best to place the text)
+ax = gca()
+h1, h2 = ax.plot(range(5), range(5), range(5), arange(5)**2)
+r = matplotlib.patches.Rectangle((0,0), 1, 1, fill=False, edgecolor='none',
+                                 visible=False)
+ax.legend([h1, h2, r], ['a', 'b', 'c'], loc=0, title='test')
+plt.draw()
+
+################################################################
+# development mode with pip and setup.py
+################################################################
+# OK, so i have figured out that for development mode to work a la
+# python setup.py develop
+# so that you don't have to continually re-install a package after updating it,
+# the package MUST NOT BE INSTALLED WITH PIP.
+# if it is, first uninstall it with
+pip uninstall PACKAGE_NAME
+# and then go to the source directory for the package (e.g., ~/PACKAGE_NAME) and do
+python setup.py develop
+# all this does is add an 'egg' file in the site-packages directory for the current anaconda dist
+# which has the source directory for the package. then there is a separate easy_install.pth (or something)
+# file in site-packages which is updated such that that directory is simply added to sys.path
+# and that's how this whole fancy develop stuff works. it just modifies the python path....
+# basically, setup.py develop is not compatible with pip because pip copies the source files to
+# site-package and makes any import of the package import it from there, which is always going to be static.
+
+################################################################
+# importing a particular object from a module using only strings
+################################################################
+# see http://stackoverflow.com/questions/9806963/how-to-use-pythons-import-function-properly-import
+_temp = __import__('foo.bar', globals(), locals(), ['object'], -1) 
+object = _temp.object
+
+################################################################
+# access of env variables from within a routine
+################################################################
+import os
+os.environ['HOME']
+
+################################################################
+# make immutable object
+################################################################
+# see http://stackoverflow.com/questions/4828080/how-to-make-an-immutable-object-in-python
+class Point(object):
+    def __init__(self, x, y):
+        object.__setattr__(self, "x", x)
+        object.__setattr__(self, "y", y)
+    def __setattr__(self, *args):
+        raise TypeError
+    def __delattr__(self, *args):
+        raise TypeError
+
+################################################################
+# array of Nones
+################################################################
+np.empty(2,dtype=object)
+
+################################################################
+# histogram
+################################################################
+np.histogram(array, bins=[0,1,2,3])
+# from the documentation:
+    # All but the last (righthand-most) bin is half-open.  In other words, if
+    # `bins` is::
+    
+    #   [1, 2, 3, 4]
+    
+    # then the first bin is ``[1, 2)`` (including 1, but excluding 2) and the
+    # second ``[2, 3)``.  The last bin, however, is ``[3, 4]``, which *includes*
+    # 4.
+
+################################################################
+# memory profiling
+################################################################
+from memory_profiler import profile
+# then decorate functions with @profile
+# then do :
+python -m memory_profiler SCRIPT.PY
+
+################################################################
+# timing with kernprofiler
+################################################################
+# decorate functions with 
+@profile
+# so don't have to change this if the same ones that are profiled by memory_profiler are to be profiled by kernprof (see above)!
+# then run:
+kernprof -l -v fib.py
+# this will output a file with the lprof extension, which is binary, but can be printed to stdout as text using
+python line_profiler.py
+
+################################################################
+# calling a procedure from within python, e.g., IDL !!!
+################################################################
+# see https://github.com/anthonyjsmith/pIDLy
+
+# to use:
+import pidly
+idl = pidly.IDL('/usr/local/exelis/idl83/bin/idl')
+# to call an idl procedure called PRO that would normally be called by pro PRO, p1, p2, /plot:
+idl.pro('PRO', 'test', 'test', plot=False)
+
+################################################################
+# read in columns as tuple
+################################################################
+a, b = np.loadtxt(filename, usecols=(0,2), unpack=True)
+
+################################################################
+# perfectly spaced subplots
+################################################################
+# make the size of the plot itself large
+# (the following works for 5x5 subplot plot)
+fig = plt.figure(figsize=(25, 14))
+adjust fontsizes of labels
+ax = fig.add_subplot(5, 5, 1)
+ax.set_xlabel('blah', size=3)
+# etc.
+# then tighten all of them with:
+fig.tight_layout(h_pad=1.08)
+
+################################################################
+# remove all space between subplots
+################################################################
+# see http://stackoverflow.com/questions/22607444/pyplot-shared-axes-and-no-space-between-subplots
+fig.subplots_adjust(wspace=0, hspace=0)
+
+################################################################
+# subplot guide
+################################################################
+# the following sets up two side-by-side plots. 
+# keys are to adjust the figure size, and also to prune the ticks using MaxNLocator!!
+
+from matplotlib.ticker import MaxNLocator
+plt.figure(figsize=(20,2))
+ax1 = plt.subplot(121)
+ax1.scatter(tab_RC['TEFF_IRFM'], tab_RC['V_K2'], linewidth=0., s=1.5, color='red')
+
+ax2 = plt.subplot(122, sharey=ax1, sharex=ax1)
+ax2.scatter(tab_RC['TEFF_IRFM'], tab_RC['V_TGAS'], linewidth=0., s=1.5, color='red')
+ax2.yaxis.tick_right()
+
+plt.tight_layout()
+plt.subplots_adjust(wspace=0)
+
+# dealing with overlapping labels:
+xticks = axes[4].xaxis.get_major_ticks()                                                                                
+xticks[0].label1.set_visible(False)                                                                                     
+xticks[-1].label1.set_visible(False)
+
+################################################################
+# backends for graphics
+################################################################
+# see http://matplotlib.org/faq/usage_faq.html#what-is-a-backend
+# two types : interactive and non-interactive
+# agg is non-interactive...
+# so plt.show will freeze everything until the plot is exited.
+# but it does allow one to plot things via ssh:
+import matplotlib
+matplotlib.use('Agg')
+
+
+################################################################
+# save data to ascii using np:
+################################################################
+# from @ruthangus
+data = np.vstack((fs, amps2**.5*1e6)).T 
+np.savetxt("SIPs/%s.txt" % id, data)
+
+################################################################
+# stats visualization with seaborn
+################################################################
+# good example of combined density-scatter plot :
+http://stanford.edu/~mwaskom/software/seaborn/examples/pair_grid_with_kde.html
+
+################################################################
+cython compile
+################################################################
+setup.py build_ext --inplace
+
+################################################################
+# draw arrows in a plot
+################################################################
+import pylab as P
+P.subplot(111)
+# P.arrow( x, y, dx, dy, **kwargs )
+P.arrow( 0.5, 0.8, 0.0, -0.2, fc="k", ec="k", head_width=0.05, head_length=0.1)
+P.show()
+
+################################################################
+# to get the color of a line
+################################################################
+line, = ax.plot(BLAH)
+line.get_color()
+
+################################################################
+# properties property
+################################################################
+# i don't know what this means anymore...
+def getvar(self):
+    return self._var
+
+def setvar(self, value)
+    return self._var = value
+
+x = property(getx, setx)
+
+################################################################
+# find module that contains a function:
+################################################################
+sys.modules[func.__module__]
+
+################################################################
+# remove file:
+################################################################
+os.remove('FILE')
+
+################################################################
+# integrate:
+################################################################
+scipy.integrate.simps(a)
+
+################################################################
+# linear fit
+################################################################
+xi = [0,1,2,3]
+y = [1,2,4,16]
+a = array([xi, ones(N)])
+np.linalg.lstsq(a.T, y)[0]
+
+################################################################
+# printing strings
+################################################################
+http://infohost.nmt.edu/tcc/help/pubs/python/web/new-str-format.html
+# briefly,
+"This is a {qualifier} example.".format(qualifier='awful')
+
+################################################################
+# exceptions
+################################################################
+
+# should be used when an error occurs that is not dastardly to the code, but the user should know about; the best way is to make your own exceptions -- that way they are descriptive:
+class NotARealNumberException(Exception):
+      pass
+
+raise NotARealNumberException("In this part of the code, we need a real input")
+
+np.seterr(all='raise')
+
+################################################################
+# assert
+################################################################
+# should be used when something happens that should never happen. the code will stop. also it is optimized, unlike exceptions, so they're free to use (i think).
+assert not BLAH
+
+
+
+################################################################
+# naming conventions
+################################################################
+# _single_leading_underscore: weak "internal use" indicator. E.g. from M import * does not import objects whose name starts with an underscore.
+
+# single_trailing_underscore_: used by convention to avoid conflicts with Python keyword, e.g.
+
+# Tkinter.Toplevel(master, class_='ClassName')
+
+# __double_leading_underscore: when naming a class attribute, invokes name mangling (inside class FooBar, __boo becomes _FooBar__boo; see below).
+
+# __double_leading_and_trailing_underscore__: "magic" objects or attributes that live in user-controlled namespaces. E.g. __init__, __import__ or __file__. Never invent such names; only use them as documented.
+
+
+################################################################
+user command line arguments
+################################################################
+response = raw_input("Enter something: ")

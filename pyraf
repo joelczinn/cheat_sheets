@@ -1,0 +1,9 @@
+################################################################
+# how to call it and get an iraf-like session
+################################################################
+open 
+xgterm
+# and then 
+ds9 &
+pyraf
+# then you can use everything as normal (e.g., displ FILE[##])

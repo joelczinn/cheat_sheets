@@ -1,0 +1,7 @@
+################################################################
+# to write comments
+################################################################
+# make each line of comments an element in a list and give that to
+
+table.meta['comments'] = ['First line', 'Second line']
+t.write(BLAH, comment='# ')
